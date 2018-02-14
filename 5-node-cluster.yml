@@ -1,0 +1,117 @@
+version: '3.1'
+
+services:
+  namenode:
+    image: renci/hadoop:2.9.0
+    container_name: namenode
+    volumes:
+      - hadoop-public:/home/hadoop/public
+      - ./site-files:/site-files
+    restart: always
+    hostname: namenode
+    networks:
+      - hadoop
+    ports:
+      - '50070:50070'
+    environment:
+      IS_NODE_MANAGER: 'false'
+      IS_NAME_NODE: 'true'
+      IS_SECONDARY_NAME_NODE: 'false'
+      IS_DATA_NODE: 'false'
+      IS_RESOURCE_MANAGER: 'false'
+      CLUSTER_NODES: namenode resourcemanager worker1 worker2 worker3
+
+  resourcemanager:
+    image: renci/hadoop:2.9.0
+    depends_on:
+      - namenode
+    container_name: resourcemanager
+    volumes:
+      - hadoop-public:/home/hadoop/public
+      - ./site-files:/site-files
+    restart: always
+    hostname: resourcemanager
+    networks:
+      - hadoop
+    ports:
+      - '8042:8042'
+      - '8088:8088'
+    environment:
+      IS_NODE_MANAGER: 'true'
+      IS_NAME_NODE: 'false'
+      IS_SECONDARY_NAME_NODE: 'false'
+      IS_DATA_NODE: 'false'
+      IS_RESOURCE_MANAGER: 'true'
+      CLUSTER_NODES: namenode resourcemanager worker1 worker2 worker3
+
+  worker1:
+    image: renci/hadoop:2.9.0
+    depends_on:
+      - namenode
+    container_name: worker1
+    volumes:
+      - hadoop-public:/home/hadoop/public
+      - ./site-files:/site-files
+    restart: always
+    hostname: worker1
+    networks:
+      - hadoop
+    ports:
+      - '50075:50075'
+    environment:
+      IS_NODE_MANAGER: 'false'
+      IS_NAME_NODE: 'false'
+      IS_SECONDARY_NAME_NODE: 'false'
+      IS_DATA_NODE: 'true'
+      IS_RESOURCE_MANAGER: 'false'
+      CLUSTER_NODES: namenode resourcemanager worker1 worker2 worker3
+
+  worker2:
+    image: renci/hadoop:2.9.0
+    depends_on:
+      - namenode
+    container_name: worker2
+    volumes:
+      - hadoop-public:/home/hadoop/public
+      - ./site-files:/site-files
+    restart: always
+    hostname: worker2
+    networks:
+      - hadoop
+    ports:
+      - '50076:50075'
+    environment:
+      IS_NODE_MANAGER: 'false'
+      IS_NAME_NODE: 'false'
+      IS_SECONDARY_NAME_NODE: 'false'
+      IS_DATA_NODE: 'true'
+      IS_RESOURCE_MANAGER: 'false'
+      CLUSTER_NODES: namenode resourcemanager worker1 worker2 worker3
+
+  worker3:
+    image: renci/hadoop:2.9.0
+    depends_on:
+      - namenode
+    container_name: worker3
+    volumes:
+      - hadoop-public:/home/hadoop/public
+      - ./site-files:/site-files
+    restart: always
+    hostname: worker3
+    networks:
+      - hadoop
+    ports:
+      - '50077:50075'
+    environment:
+      IS_NODE_MANAGER: 'false'
+      IS_NAME_NODE: 'false'
+      IS_SECONDARY_NAME_NODE: 'false'
+      IS_DATA_NODE: 'true'
+      IS_RESOURCE_MANAGER: 'false'
+      CLUSTER_NODES: namenode resourcemanager worker1 worker2 worker3
+
+volumes:
+  hadoop-public:
+
+networks:
+  hadoop:

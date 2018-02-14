@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  hadoop:
+    image: renci/hadoop:2.9.0
+    build:
+      context: ./2.9.0
+      dockerfile: Dockerfile
+    container_name: hadoop
+    restart: always
+    hostname: localhost
+    ports:
+      - '8042:8042'
+      - '8088:8088'
+      - '50070:50070'
+      - '50075:50075'
+      - '50090:50090'
+    environment:
+      IS_NODE_MANAGER: 'true'
+      IS_NAME_NODE: 'true'
+      IS_SECONDARY_NAME_NODE: 'true'
+      IS_DATA_NODE: 'true'
+      IS_RESOURCE_MANAGER: 'true'
+      CLUSTER_NODES: hadoop
