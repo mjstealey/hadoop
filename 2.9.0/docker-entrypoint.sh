@@ -145,29 +145,39 @@ _mapred_site_xml
 _yarn_site_xml
 _workers
 
+IS_FIRST_RUN=$(if [ ! -f "/home/hadoop/.ssh/id_rsa.pub" ]; then echo 'true'; else echo 'false'; fi)
+
 if $IS_NAME_NODE; then
+  if $IS_FIRST_RUN; then
   echo "NameNode copy ssh"
-  _generate_ssh_keys
-  cp -r /home/hadoop/.ssh /home/hadoop/public/
+    _generate_ssh_keys
+    cp -r /home/hadoop/.ssh /home/hadoop/public/
+  fi
 else
   while [ ! -d /home/hadoop/public/.ssh ]; do
     echo "waiting for /home/hadoop/public/.ssh"
     sleep 2
   done
-  echo "COPY: .ssh from namenode to $(hostname)"
-  cp -rf /home/hadoop/public/.ssh /home/hadoop/
-  cat /home/hadoop/.ssh/id_rsa.pub >> /home/hadoop/.ssh/authorized_keys
-  chown -R hadoop:hadoop /home/hadoop/.ssh
+  if $IS_FIRST_RUN; then
+    echo "COPY: .ssh from namenode to $(hostname)"
+    cp -rf /home/hadoop/public/.ssh /home/hadoop/
+    cat /home/hadoop/.ssh/id_rsa.pub >> /home/hadoop/.ssh/authorized_keys
+    chown -R hadoop:hadoop /home/hadoop/.ssh
+  fi
 fi
 
-while read node; do
-  echo "node = $node"
-  until runuser -l hadoop -c $'ssh-keyscan $node >> /home/hadoop/.ssh/known_hosts'; do sleep 2; done
-done < <($CLUSTER_NODES)
+if $IS_FIRST_RUN; then
+  while read node; do
+    echo "node = $node"
+    until runuser -l hadoop -c $'ssh-keyscan $node >> /home/hadoop/.ssh/known_hosts'; do sleep 2; done
+  done < <($CLUSTER_NODES)
+fi
 
 if $IS_NAME_NODE; then
     echo "Staring NameNode"
-    runuser -l hadoop -c $'$HADOOP_PREFIX/bin/hdfs namenode -format'
+    if $IS_FIRST_RUN; then
+      runuser -l hadoop -c $'$HADOOP_PREFIX/bin/hdfs namenode -format'
+    fi
     runuser -l hadoop -c $'$HADOOP_PREFIX/sbin/hadoop-daemon.sh --config $HADOOP_CONF_DIR --script hdfs start namenode'
 fi
 
