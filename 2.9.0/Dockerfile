@@ -31,10 +31,6 @@ RUN curl -o hadoop-$HADOOP_VERSION.tar.gz "https://archive.apache.org/dist/hadoo
     && rm -f hadoop-HADOOP_VERSION.tar.gz \
     && yum clean all
 
-RUN mkdir -p /home/hadoop/hdfs/namenode \
-    && mkdir -p /home/hadoop/hdfs/datanode \
-    && mkdir -p /home/hadoop/public
-
 WORKDIR /root/
 USER root
 RUN ssh-keygen -q -N '' -t rsa -f /root/.ssh/id_rsa \
@@ -62,7 +58,7 @@ ENV IS_NODE_MANAGER=true \
     IS_RESOURCE_MANAGER=true \
     CLUSTER_NODES=localhost
 
-VOLUME ["/site-files"]
+VOLUME ["/site-files", "/home/hadoop/public"]
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
