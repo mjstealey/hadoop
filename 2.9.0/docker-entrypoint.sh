@@ -106,11 +106,13 @@ EOF
 _hadoop_profile() {
   cat > /etc/profile.d/hadoop.sh << EOF
 export HADOOP_USER_HOME=${HADOOP_USER_HOME}
+export HADOOP_HOME=${HADOOP_USER_HOME}/hadoop
 export HADOOP_PREFIX=${HADOOP_USER_HOME}/hadoop
 export HADOOP_INSTALL=${HADOOP_PREFIX}
 export HADOOP_MAPRED_HOME=${HADOOP_PREFIX}
 export HADOOP_COMMON_HOME=${HADOOP_PREFIX}
 export HADOOP_HDFS_HOME=${HADOOP_PREFIX}
+export JAVA_LIBRARY_PATH=${JAVA_LIBRARY_PATH}:${HADOOP_PREFIX}/lib/native
 export YARN_HOME=${HADOOP_PREFIX}
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_PREFIX}/lib/native
 export HADOOP_CONF_DIR=${HADOOP_PREFIX}/etc/hadoop
@@ -132,12 +134,22 @@ _generate_ssh_keys() {
 }
 
 _hadoop_profile
-runuser -l hadoop -c $'env'
+# runuser -l hadoop -c $'env' # debug hadoop env
 
-/usr/sbin/sshd -D &
+if $IS_NAME_NODE; then
+  mkdir -p /hdfsdata/namenode
+  chown -R hadoop:hadoop /hdfsdata/namenode
+fi
+if $IS_DATA_NODE; then
+  mkdir -p /hdfsdata/datanode
+  chown -R hadoop:hadoop /hdfsdata/datanode
+fi
+
 chown -R hadoop:hadoop /home/hadoop/public
 
-runuser -l hadoop -c $'sed -i \'s!# export JAVA_HOME=!export JAVA_HOME=/usr/java/default/jre/bin!\' /home/hadoop/hadoop/etc/hadoop/hadoop-env.sh'
+/usr/sbin/sshd -D &
+
+runuser -l hadoop -c $'sed -i \'s:export JAVA_HOME=.*:export JAVA_HOME=/usr/java/jdk1.8.0_161/jre:\' /home/hadoop/hadoop/etc/hadoop/hadoop-env.sh'
 
 _core_site_xml
 _hdfs_site_xml

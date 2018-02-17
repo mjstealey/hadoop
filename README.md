@@ -62,7 +62,7 @@ Automated builds are generated at: [https://hub.docker.com/u/renci](https://hub.
 $ docker pull renci/hadoop:2.9.0
 ```
 
-## Example
+## Example: Five node cluster
 
 Using the provided [`5-node-cluster.yml`](5-node-cluster.yml) file to stand up a five node Hadoop cluster that includes a `namenode`, `resourcemanager` and three workers (`worker1`, `worker2` and `worker3`).
 
@@ -292,6 +292,267 @@ Removing worker3         ... done
 Removing namenode        ... done
 ```
 
+## Example: Map Reduce
+
+**NOTE**: Assumes the existence of the five node cluster from the previous example.
+
+A simple map reduce example has been provided in the [mapreduce-example.sh](mapreduce-example.sh) script.
+
+The script is meant to be run from the host machine and uses `docker exec` to relay commands to the docker `namenode` container as the `hadoop` user.
+
+
+```
+$ ./mapreduce-example.sh
+INFO: remove input/output HDFS directories if they already exist
+rm: `input': No such file or directory
+rm: `output': No such file or directory
+INFO: hdfs dfs -mkdir -p /user/hadoop/input
+INFO: hdfs dfs -put hadoop/README.txt /user/hadoop/input/
+INFO: hadoop jar hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.9.0.jar wordcount input output
+18/02/17 19:42:38 INFO client.RMProxy: Connecting to ResourceManager at resourcemanager/172.19.0.5:8032
+18/02/17 19:42:39 INFO input.FileInputFormat: Total input files to process : 1
+18/02/17 19:42:39 INFO mapreduce.JobSubmitter: number of splits:1
+18/02/17 19:42:39 INFO Configuration.deprecation: yarn.resourcemanager.system-metrics-publisher.enabled is deprecated. Instead, use yarn.system-metrics-publisher.enabled
+18/02/17 19:42:39 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1518896527275_0001
+18/02/17 19:42:40 INFO impl.YarnClientImpl: Submitted application application_1518896527275_0001
+18/02/17 19:42:40 INFO mapreduce.Job: The url to track the job: http://resourcemanager:8088/proxy/application_1518896527275_0001/
+18/02/17 19:42:40 INFO mapreduce.Job: Running job: job_1518896527275_0001
+18/02/17 19:42:51 INFO mapreduce.Job: Job job_1518896527275_0001 running in uber mode : false
+18/02/17 19:42:51 INFO mapreduce.Job:  map 0% reduce 0%
+18/02/17 19:42:58 INFO mapreduce.Job:  map 100% reduce 0%
+18/02/17 19:43:05 INFO mapreduce.Job:  map 100% reduce 100%
+18/02/17 19:43:05 INFO mapreduce.Job: Job job_1518896527275_0001 completed successfully
+18/02/17 19:43:05 INFO mapreduce.Job: Counters: 49
+	File System Counters
+		FILE: Number of bytes read=1836
+		FILE: Number of bytes written=407057
+		FILE: Number of read operations=0
+		FILE: Number of large read operations=0
+		FILE: Number of write operations=0
+		HDFS: Number of bytes read=1480
+		HDFS: Number of bytes written=1306
+		HDFS: Number of read operations=6
+		HDFS: Number of large read operations=0
+		HDFS: Number of write operations=2
+	Job Counters
+		Launched map tasks=1
+		Launched reduce tasks=1
+		Rack-local map tasks=1
+		Total time spent by all maps in occupied slots (ms)=3851
+		Total time spent by all reduces in occupied slots (ms)=3718
+		Total time spent by all map tasks (ms)=3851
+		Total time spent by all reduce tasks (ms)=3718
+		Total vcore-milliseconds taken by all map tasks=3851
+		Total vcore-milliseconds taken by all reduce tasks=3718
+		Total megabyte-milliseconds taken by all map tasks=3943424
+		Total megabyte-milliseconds taken by all reduce tasks=3807232
+	Map-Reduce Framework
+		Map input records=31
+		Map output records=179
+		Map output bytes=2055
+		Map output materialized bytes=1836
+		Input split bytes=114
+		Combine input records=179
+		Combine output records=131
+		Reduce input groups=131
+		Reduce shuffle bytes=1836
+		Reduce input records=131
+		Reduce output records=131
+		Spilled Records=262
+		Shuffled Maps =1
+		Failed Shuffles=0
+		Merged Map outputs=1
+		GC time elapsed (ms)=114
+		CPU time spent (ms)=1330
+		Physical memory (bytes) snapshot=482201600
+		Virtual memory (bytes) snapshot=3950104576
+		Total committed heap usage (bytes)=281018368
+	Shuffle Errors
+		BAD_ID=0
+		CONNECTION=0
+		IO_ERROR=0
+		WRONG_LENGTH=0
+		WRONG_MAP=0
+		WRONG_REDUCE=0
+	File Input Format Counters
+		Bytes Read=1366
+	File Output Format Counters
+		Bytes Written=1306
+INFO: hdfs dfs -ls /user/hadoop/output
+Found 2 items
+-rw-r--r--   2 hadoop supergroup          0 2018-02-17 19:43 /user/hadoop/output/_SUCCESS
+-rw-r--r--   2 hadoop supergroup       1306 2018-02-17 19:43 /user/hadoop/output/part-r-00000
+INFO: cat hadoop/README.txt
+For the latest information about Hadoop, please visit our website at:
+
+   http://hadoop.apache.org/core/
+
+and our wiki, at:
+
+   http://wiki.apache.org/hadoop/
+
+This distribution includes cryptographic software.  The country in
+which you currently reside may have restrictions on the import,
+possession, use, and/or re-export to another country, of
+encryption software.  BEFORE using any encryption software, please
+check your country's laws, regulations and policies concerning the
+import, possession, or use, and re-export of encryption software, to
+see if this is permitted.  See <http://www.wassenaar.org/> for more
+information.
+
+The U.S. Government Department of Commerce, Bureau of Industry and
+Security (BIS), has classified this software as Export Commodity
+Control Number (ECCN) 5D002.C.1, which includes information security
+software using or performing cryptographic functions with asymmetric
+algorithms.  The form and manner of this Apache Software Foundation
+distribution makes it eligible for export under the License Exception
+ENC Technology Software Unrestricted (TSU) exception (see the BIS
+Export Administration Regulations, Section 740.13) for both object
+code and source code.
+
+The following provides more details on the included cryptographic
+software:
+  Hadoop Core uses the SSL libraries from the Jetty project written
+by mortbay.org.
+INFO: hdfs dfs -cat /user/hadoop/output/part-r-00000
+(BIS),	1
+(ECCN)	1
+(TSU)	1
+(see	1
+5D002.C.1,	1
+740.13)	1
+<http://www.wassenaar.org/>	1
+Administration	1
+Apache	1
+BEFORE	1
+BIS	1
+Bureau	1
+Commerce,	1
+Commodity	1
+Control	1
+Core	1
+Department	1
+ENC	1
+Exception	1
+Export	2
+For	1
+Foundation	1
+Government	1
+Hadoop	1
+Hadoop,	1
+Industry	1
+Jetty	1
+License	1
+Number	1
+Regulations,	1
+SSL	1
+Section	1
+Security	1
+See	1
+Software	2
+Technology	1
+The	4
+This	1
+U.S.	1
+Unrestricted	1
+about	1
+algorithms.	1
+and	6
+and/or	1
+another	1
+any	1
+as	1
+asymmetric	1
+at:	2
+both	1
+by	1
+check	1
+classified	1
+code	1
+code.	1
+concerning	1
+country	1
+country's	1
+country,	1
+cryptographic	3
+currently	1
+details	1
+distribution	2
+eligible	1
+encryption	3
+exception	1
+export	1
+following	1
+for	3
+form	1
+from	1
+functions	1
+has	1
+have	1
+http://hadoop.apache.org/core/	1
+http://wiki.apache.org/hadoop/	1
+if	1
+import,	2
+in	1
+included	1
+includes	2
+information	2
+information.	1
+is	1
+it	1
+latest	1
+laws,	1
+libraries	1
+makes	1
+manner	1
+may	1
+more	2
+mortbay.org.	1
+object	1
+of	5
+on	2
+or	2
+our	2
+performing	1
+permitted.	1
+please	2
+policies	1
+possession,	2
+project	1
+provides	1
+re-export	2
+regulations	1
+reside	1
+restrictions	1
+security	1
+see	1
+software	2
+software,	2
+software.	2
+software:	1
+source	1
+the	8
+this	3
+to	2
+under	1
+use,	2
+uses	1
+using	2
+visit	1
+website	1
+which	2
+wiki,	1
+with	1
+written	1
+you	1
+your	1
+HDFS directories at: http://localhost:50070/explorer.html#/user/hadoop
+```
+
+NameNode: [http://localhost:50070/explorer.html#/user/hadoop](http://localhost:50070/explorer.html#/user/hadoop)
+
+<img width="50%" alt="MapReduce Example" src="https://user-images.githubusercontent.com/5332509/36345032-c4957f5a-13f1-11e8-95a1-6fadb9988157.png">
+
 ### References
 
 1. [https://tecadmin.net/setup-hadoop-single-node-cluster-on-centos-redhat/](https://tecadmin.net/setup-hadoop-single-node-cluster-on-centos-redhat/)
@@ -302,3 +563,4 @@ Removing namenode        ... done
 	- MapReduce: [hadoop-mapreduce-client-core/mapred-default.xml](http://hadoop.apache.org/docs/r2.9.0/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml)
 	- Yarn: [hadoop-yarn-common/yarn-default.xml](http://hadoop.apache.org/docs/r2.9.0/hadoop-yarn/hadoop-yarn-common/yarn-default.xml)
 	- Deprecated Properties: [hadoop-common/DeprecatedProperties.html](http://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/DeprecatedProperties.html)
+4. Example MapReduce: [https://tecadmin.net/hadoop-running-a-wordcount-mapreduce-example/](https://tecadmin.net/hadoop-running-a-wordcount-mapreduce-example/)
