@@ -111,10 +111,9 @@ services:
     networks:
       - hadoop
     ports:
-      - '8042:8042'
       - '8088:8088'
     environment:
-      IS_NODE_MANAGER: 'true'
+      IS_NODE_MANAGER: 'false'
       IS_NAME_NODE: 'false'
       IS_SECONDARY_NAME_NODE: 'false'
       IS_DATA_NODE: 'false'
@@ -134,9 +133,10 @@ services:
     networks:
       - hadoop
     ports:
+      - '8042:8042'
       - '50075:50075'
     environment:
-      IS_NODE_MANAGER: 'false'
+      IS_NODE_MANAGER: 'true'
       IS_NAME_NODE: 'false'
       IS_SECONDARY_NAME_NODE: 'false'
       IS_DATA_NODE: 'true'
@@ -156,9 +156,10 @@ services:
     networks:
       - hadoop
     ports:
+      - '8043:8042'
       - '50076:50075'
     environment:
-      IS_NODE_MANAGER: 'false'
+      IS_NODE_MANAGER: 'true'
       IS_NAME_NODE: 'false'
       IS_SECONDARY_NAME_NODE: 'false'
       IS_DATA_NODE: 'true'
@@ -178,9 +179,10 @@ services:
     networks:
       - hadoop
     ports:
+      - '8044:8042'
       - '50077:50075'
     environment:
-      IS_NODE_MANAGER: 'false'
+      IS_NODE_MANAGER: 'true'
       IS_NAME_NODE: 'false'
       IS_SECONDARY_NAME_NODE: 'false'
       IS_DATA_NODE: 'true'
@@ -206,13 +208,13 @@ After a few moments all containers will be running and should display in a `ps` 
 
 ```
 $ docker-compose -f 5-node-cluster.yml ps
-     Name                    Command               State                           Ports
------------------------------------------------------------------------------------------------------------------
+     Name                    Command               State                            Ports
+-------------------------------------------------------------------------------------------------------------------
 namenode          /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50070->50070/tcp
-resourcemanager   /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:8042->8042/tcp, 0.0.0.0:8088->8088/tcp
-worker1           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50075->50075/tcp
-worker2           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50076->50075/tcp
-worker3           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50077->50075/tcp
+resourcemanager   /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:8088->8088/tcp
+worker1           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50075->50075/tcp, 0.0.0.0:8042->8042/tcp
+worker2           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50076->50075/tcp, 0.0.0.0:8043->8042/tcp
+worker3           /usr/local/bin/tini -- /do ...   Up      22/tcp, 0.0.0.0:50077->50075/tcp, 0.0.0.0:8044->8042/tcp
 ```
 
 Since the ports of the containers were mapped to the host the various web ui's can be observed using a local browser.
@@ -223,21 +225,22 @@ NameNode: [http://localhost:50070/dfshealth.html#tab-datanode](http://localhost:
 
 <img width="50%" alt="NameNode" src="https://user-images.githubusercontent.com/5332509/36226272-5546e344-119b-11e8-9076-ca65ae2c0c55.png">
 
-**resource manager container**: ResourceManager/NodeManager Web UI on ports 8088 and 8042
+**resource manager container**: ResourceManager Web UI on port 8088
 
 ResourceManger: [http://localhost:8088/cluster](http://localhost:8088/cluster)
 
-<img width="50%" alt="ResourceManager" src="https://user-images.githubusercontent.com/5332509/36226136-fb20dbfe-119a-11e8-8122-625ad2c62a91.png">
+<img width="50%" alt="ResourceManager" src="https://user-images.githubusercontent.com/5332509/36403411-c540a2e6-15b2-11e8-9857-bf5d605d52c7.png">
 
-NodeManager: [http://localhost:8042/node](http://localhost:8042/node)
 
-<img width="50%" alt="NodeManager" src="https://user-images.githubusercontent.com/5332509/36226239-434059a0-119b-11e8-8c08-d33dd66bfdce.png">
+**worker1, worker2 and worker3 containers**: DataNode Web UI on ports 50075, 50076 and 50077, NodeManager Web UI on ports 8042, 8043 and 8044.
 
-**worker1, worker2 and worker3 containers**: DataNode Web UI on ports 50075, 50076 and 50077
-
-Worker1 DataNode: [http://localhost:50075/datanode.html](http://localhost:50075/datanode.html)
+DataNode (worker1): [http://localhost:50075/datanode.html](http://localhost:50075/datanode.html)
 
 <img width="50%" alt="Worker1 DataManager" src="https://user-images.githubusercontent.com/5332509/36226302-6c3f2fac-119b-11e8-8d90-824c8cd39490.png">
+
+NodeManager (worker1): [http://localhost:8042/node](http://localhost:8042/node)
+
+<img width="50%" alt="NodeManager" src="https://user-images.githubusercontent.com/5332509/36226239-434059a0-119b-11e8-8c08-d33dd66bfdce.png">
 
 Worker2 DataNode: [http://localhost:50076/datanode.html](http://localhost:50076/datanode.html)
 
