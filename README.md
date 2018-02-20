@@ -66,9 +66,9 @@ $ docker pull renci/hadoop:2.9.0
 
 Using the provided [`5-node-cluster.yml`](5-node-cluster.yml) file to stand up a five node Hadoop cluster that includes a `namenode`, `resourcemanager` and three workers (`worker1`, `worker2` and `worker3`).
 
-Hadoop docker network (specific network values subject to change based on system):
+Hadoop docker network and port mappings (specific network values subject to change based on system):
 
-<img width="80%" alt="Hadoop docker network" src="https://user-images.githubusercontent.com/5332509/36358254-6b332ed8-14d9-11e8-9dc8-de125e81fb37.png">
+<img width="80%" alt="Hadoop docker network" src="https://user-images.githubusercontent.com/5332509/36402998-16456864-15b0-11e8-823e-807e434ebab8.png">
 
 The nodes will use the definitions found in the [site-files](site-files) directory to configure the cluster. These files can be modified as needed to configure your cluster as needed at runtime.
 
